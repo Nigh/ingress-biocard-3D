@@ -1,0 +1,24 @@
+# Generated models, exports and validation reports
+*.stl
+*.3mf
+*.zip
+validation.json
+artwork_validation.json
+
+# Local development and runtime files
+work/
+outputs/
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
