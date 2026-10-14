@@ -80,6 +80,18 @@ def compile_stl(executable, target, settings, expect_failure=False, source=SCAD)
     return read_stl(target)
 
 
+def check_accent_profile(mesh):
+    vertices, triangles, stats = mesh
+    bottom, top = stats["bounds_mm"][2]
+    assert {v[2] for v in vertices} == {bottom, top}, "Accent has uneven caps"
+    assert {(x, y) for x, y, z in vertices if z == bottom} == {
+        (x, y) for x, y, z in vertices if z == top
+    }, "Accent top/bottom outlines differ"
+    for face in triangles:
+        if len({vertices[i][2] for i in face}) > 1:
+            assert len({vertices[i][:2] for i in face}) == 2, "Accent has a tapered wall"
+
+
 def write_3mf(path, parts, colors):
     ET.register_namespace("", NS)
     model = ET.Element("{"+NS+"}model", unit="millimeter")
@@ -144,6 +156,7 @@ def main():
             expected_height=1.6 if mode=="Inset" else 2.2
             assert meshes["Assembly"][2]["bounds_mm"]==[[0,63],[0,88],[0,expected_height]]
             assert meshes["Accent"][2]["bounds_mm"][2]==([1,1.6] if mode=="Inset" else [1.6,2.2])
+            check_accent_profile(meshes["Accent"])
             assert abs(meshes["Base"][2]["volume_mm3"]+meshes["Accent"][2]["volume_mm3"]-
                        meshes["Assembly"][2]["volume_mm3"])<0.03
             vertices=meshes["Accent"][0]
